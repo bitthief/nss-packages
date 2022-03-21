@@ -15,4 +15,9 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
+# Check if bridge forwarding rules exist, if not add them
+iptables -C FORWARD -m physdev --physdev-is-bridged -j ACCEPT ||
 iptables -A FORWARD -m physdev --physdev-is-bridged -j ACCEPT
+
+ip6tables -C FORWARD -m physdev --physdev-is-bridged -j ACCEPT ||
+ip6tables -A FORWARD -m physdev --physdev-is-bridged -j ACCEPT
