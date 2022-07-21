@@ -4,7 +4,7 @@ Date: Sat, 14 May 2022 20:15:10 +0200
 Subject: [PATCH 10/12] frontends: drop udp_get_timeouts and use standard
  upstream api
 
-Drop udp_get_timeouts and use nf_udp_pernet and ->timeoutrs
+Drop udp_get_timeouts and use nf_udp_pernet and ->timeouts
 instead or relying on a downstream api not present upstream.
 ---
  frontends/nss/ecm_nss_ipv4.c | 3 ++-
@@ -25,7 +25,7 @@ index 719a747..558819a 100644
 +					struct nf_udp_net *un = nf_udp_pernet(nf_ct_net(ct));
 +					timeouts = un->timeouts;
  				}
- 
+
  				spin_lock_bh(&ct->lock);
 diff --git a/frontends/nss/ecm_nss_ipv6.c b/frontends/nss/ecm_nss_ipv6.c
 index 67ee364..51eb069 100644
@@ -39,7 +39,7 @@ index 67ee364..51eb069 100644
 +					struct nf_udp_net *un = nf_udp_pernet(nf_ct_net(ct));
 +					timeouts = un->timeouts;
  				}
- 
+
  				spin_lock_bh(&ct->lock);
 diff --git a/frontends/sfe/ecm_sfe_ipv4.c b/frontends/sfe/ecm_sfe_ipv4.c
 index 3f30821..931af5d 100644
@@ -53,7 +53,7 @@ index 3f30821..931af5d 100644
 +					struct nf_udp_net *un = nf_udp_pernet(nf_ct_net(ct));
 +					timeouts = un->timeouts;
  				}
- 
+
  				spin_lock_bh(&ct->lock);
 diff --git a/frontends/sfe/ecm_sfe_ipv6.c b/frontends/sfe/ecm_sfe_ipv6.c
 index 54fdbf3..63d8888 100644
@@ -67,8 +67,7 @@ index 54fdbf3..63d8888 100644
 +					struct nf_udp_net *un = nf_udp_pernet(nf_ct_net(ct));
 +					timeouts = un->timeouts;
  				}
- 
- 				spin_lock_bh(&ct->lock);
--- 
-2.34.1
 
+ 				spin_lock_bh(&ct->lock);
+--
+2.34.1

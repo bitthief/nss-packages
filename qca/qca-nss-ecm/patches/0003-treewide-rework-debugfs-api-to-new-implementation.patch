@@ -98,7 +98,7 @@ diff --git a/ecm_classifier_emesh.c b/ecm_classifier_emesh.c
 index 72cf2e1..f8aecec 100644
 --- a/ecm_classifier_emesh.c
 +++ b/ecm_classifier_emesh.c
-@@ -1320,26 +1320,14 @@ int ecm_classifier_emesh_sawf_init(struct dentry *dentry)
+@@ -1758,33 +1758,17 @@ int ecm_classifier_emesh_sawf_init(struc
  		return -1;
  	}
 
@@ -108,8 +108,8 @@ index 72cf2e1..f8aecec 100644
 -		debugfs_remove_recursive(ecm_classifier_emesh_sawf_dentry);
 -		return -1;
 -	}
-+	debugfs_create_u32("enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
-+				(u32 *)&ecm_classifier_emesh_enabled);
++   debugfs_create_u32("enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
++           (u32 *)&ecm_classifier_emesh_enabled);
 
 -	if (!debugfs_create_u32("latency_config_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
 -				(u32 *)&ecm_classifier_emesh_latency_config_enabled)) {
@@ -117,8 +117,8 @@ index 72cf2e1..f8aecec 100644
 -		debugfs_remove_recursive(ecm_classifier_emesh_sawf_dentry);
 -		return -1;
 -	}
-+	debugfs_create_u32("latency_config_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
-+				(u32 *)&ecm_classifier_emesh_latency_config_enabled);
++   debugfs_create_u32("latency_config_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
++           (u32 *)&ecm_classifier_emesh_latency_config_enabled);
 
 -	if (!debugfs_create_u32("sawf_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
 -				(u32 *)&ecm_classifier_sawf_enabled)) {
@@ -126,11 +126,21 @@ index 72cf2e1..f8aecec 100644
 -		debugfs_remove_recursive(ecm_classifier_emesh_sawf_dentry);
 -		return -1;
 -	}
-+	debugfs_create_u32("sawf_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
-+				(u32 *)&ecm_classifier_sawf_enabled);
+-
+-	if (!debugfs_create_u32("cake_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
+-				(u32 *)&ecm_classifier_sawf_cake_enabled)) {
+-		DEBUG_ERROR("Failed to create ecm sawf cake enabled file in debugfs\n");
+-		debugfs_remove_recursive(ecm_classifier_emesh_sawf_dentry);
+-		return -1;
+-	}
++   debugfs_create_u32("sawf_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
++           (u32 *)&ecm_classifier_sawf_enabled);
++
++   debugfs_create_u32("cake_enabled", S_IRUGO | S_IWUSR, ecm_classifier_emesh_sawf_dentry,
++           (u32 *)&ecm_classifier_sawf_cake_enabled);
+
  	/*
  	 * Register for service prioritization notification update.
- 	 */
 diff --git a/ecm_classifier_hyfi.c b/ecm_classifier_hyfi.c
 index a57a13e..fad7209 100644
 --- a/ecm_classifier_hyfi.c
@@ -356,7 +366,7 @@ index ca7fb45..f7e75e7 100644
 -		return -1;
 -	}
 +	debugfs_create_u32("stop", S_IRUGO | S_IWUSR, ecm_bond_notifier_dentry,
-+					(u32 *)&ecm_nss_bond_notifier_stopped);
++					(u32 *)&ecm_bond_notifier_stopped);
 
  	/*
  	 * Register Link Aggregation callbacks with the bonding driver
@@ -616,57 +626,61 @@ diff --git a/frontends/nss/ecm_nss_ported_ipv4.c b/frontends/nss/ecm_nss_ported_
 index 6375b6b..ea997e3 100644
 --- a/frontends/nss/ecm_nss_ported_ipv4.c
 +++ b/frontends/nss/ecm_nss_ported_ipv4.c
-@@ -2010,21 +2010,11 @@ struct ecm_nss_ported_ipv4_connection_instance *ecm_nss_ported_ipv4_connection_i
+@@ -1889,21 +1889,11 @@ struct ecm_front_end_connection_instance
   */
  bool ecm_nss_ported_ipv4_debugfs_init(struct dentry *dentry)
  {
 -	struct dentry *udp_dentry;
--
++   debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
++           &ecm_nss_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_UDP]);
+
 -	udp_dentry = debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
-+	debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
- 						&ecm_nss_ported_ipv4_accelerated_count[ECM_NSS_PORTED_IPV4_PROTO_UDP]);
+-						&ecm_nss_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_UDP]);
 -	if (!udp_dentry) {
 -		DEBUG_ERROR("Failed to create ecm nss ipv4 udp_accelerated_count file in debugfs\n");
 -		return false;
 -	}
-
+-
 -	if (!debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
--					&ecm_nss_ported_ipv4_accelerated_count[ECM_NSS_PORTED_IPV4_PROTO_TCP])) {
+-					&ecm_nss_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP])) {
 -		DEBUG_ERROR("Failed to create ecm nss ipv4 tcp_accelerated_count file in debugfs\n");
 -		debugfs_remove(udp_dentry);
 -		return false;
 -	}
-+	debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
-+					&ecm_nss_ported_ipv4_accelerated_count[ECM_NSS_PORTED_IPV4_PROTO_TCP]);
-
- 	return true;
+-
+-	return true;
++   debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
++           &ecm_nss_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP]);
++
++   return true;
  }
 diff --git a/frontends/nss/ecm_nss_ported_ipv6.c b/frontends/nss/ecm_nss_ported_ipv6.c
 index 1be8a58..451a557 100644
 --- a/frontends/nss/ecm_nss_ported_ipv6.c
 +++ b/frontends/nss/ecm_nss_ported_ipv6.c
-@@ -1925,21 +1925,11 @@ struct ecm_nss_ported_ipv6_connection_instance *ecm_nss_ported_ipv6_connection_i
+@@ -1803,21 +1803,11 @@ struct ecm_front_end_connection_instance
   */
  bool ecm_nss_ported_ipv6_debugfs_init(struct dentry *dentry)
  {
 -	struct dentry *udp_dentry;
--
++   debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
++           &ecm_nss_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_UDP]);
+
 -	udp_dentry = debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
-+	debugfs_create_u32("udp_accelerated_count", S_IRUGO, dentry,
- 						&ecm_nss_ported_ipv6_accelerated_count[ECM_NSS_PORTED_IPV6_PROTO_UDP]);
+-						&ecm_nss_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_UDP]);
 -	if (!udp_dentry) {
 -		DEBUG_ERROR("Failed to create ecm nss ipv6 udp_accelerated_count file in debugfs\n");
 -		return false;
 -	}
-
+-
 -	if (!debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
--					&ecm_nss_ported_ipv6_accelerated_count[ECM_NSS_PORTED_IPV6_PROTO_TCP])) {
+-					&ecm_nss_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP])) {
 -		DEBUG_ERROR("Failed to create ecm nss ipv6 tcp_accelerated_count file in debugfs\n");
 -		debugfs_remove(udp_dentry);
 -		return false;
 -	}
-+	debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
-+					&ecm_nss_ported_ipv6_accelerated_count[ECM_NSS_PORTED_IPV6_PROTO_TCP]);
++   debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
++           &ecm_nss_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP]);
 
  	return true;
  }
@@ -849,13 +863,13 @@ index fc2c4ba..53f5b07 100644
  	}
 
 -	if (!debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
--					&ecm_sfe_ported_ipv4_accelerated_count[ECM_SFE_PORTED_IPV4_PROTO_TCP])) {
+-					&ecm_sfe_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP])) {
 -		DEBUG_ERROR("Failed to create ecm sfe ipv4 tcp_accelerated_count file in debugfs\n");
 -		debugfs_remove(udp_dentry);
 -		return false;
 -	}
 +	debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
-+					&ecm_sfe_ported_ipv4_accelerated_count[ECM_SFE_PORTED_IPV4_PROTO_TCP]);
++					&ecm_sfe_ported_ipv4_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP]);
 
  	return true;
  }
@@ -868,13 +882,13 @@ index 90d642d..ae04cb4 100644
  	}
 
 -	if (!debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
--					&ecm_sfe_ported_ipv6_accelerated_count[ECM_SFE_PORTED_IPV6_PROTO_TCP])) {
+-					&ecm_sfe_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP])) {
 -		DEBUG_ERROR("Failed to create ecm sfe ipv6 tcp_accelerated_count file in debugfs\n");
 -		debugfs_remove(udp_dentry);
 -		return false;
 -	}
 +	debugfs_create_u32("tcp_accelerated_count", S_IRUGO, dentry,
-+					&ecm_sfe_ported_ipv6_accelerated_count[ECM_SFE_PORTED_IPV6_PROTO_TCP]);
++					&ecm_sfe_ported_ipv6_accelerated_count[ECM_FRONT_END_PORTED_PROTO_TCP]);
 
  	return true;
  }
