@@ -19,19 +19,17 @@ define KernelPackage/qca-nss-ecm
   CATEGORY:=Kernel modules
   SUBMENU:=Network Support
   DEPENDS:=@(TARGET_ipq807x||TARGET_ipq60xx) \
+  	+iptables-mod-extra \
+	+iptables-mod-physdev \
   	+kmod-qca-nss-drv \
-	+iptables-mod-extra \
 	+kmod-ipt-conntrack \
 	+kmod-ipt-physdev \
-	+iptables-mod-physdev \
 	+kmod-ppp \
 	+kmod-pppoe
   TITLE:=QCA NSS Enhanced Connection Manager (ECM)
   FILES:=$(PKG_BUILD_DIR)/ecm.ko
   KCONFIG:=CONFIG_BRIDGE_NETFILTER=y \
-	CONFIG_NF_CONNTRACK_EVENTS=y \
-	CONFIG_NF_CONNTRACK_CHAIN_EVENTS=n \
-	CONFIG_NF_CONNTRACK_DSCPREMARK_EXT=n
+		   CONFIG_NF_CONNTRACK_EVENTS=y
 endef
 
 define KernelPackage/qca-nss-ecm/Description
@@ -53,11 +51,12 @@ endef
 EXTRA_CFLAGS+=-I$(STAGING_DIR)/usr/include/qca-nss-drv
 
 ifneq (, $(findstring $(CONFIG_TARGET_BOARD), "ipq807x" "ipq60xx"))
-ECM_MAKE_OPTS+= ECM_FRONT_END_NSS_ENABLE=y \
+ECM_MAKE_OPTS:=ECM_IPV6_ENABLE=y
+ECM_MAKE_OPTS+=ECM_FRONT_END_NSS_ENABLE=y \
+		ECM_FRONT_END_SFE_ENABLE=n \
 		ECM_NON_PORTED_SUPPORT_ENABLE=y \
-		ECM_IPV6_ENABLE=y \
-		ECM_CLASSIFIER_HYFI_ENABLE=n \
 		ECM_MULTICAST_ENABLE=n \
+		ECM_INTERFACE_BOND_ENABLE=n \
 		ECM_INTERFACE_IPSEC_ENABLE=n \
 		ECM_INTERFACE_PPTP_ENABLE=n \
 		ECM_INTERFACE_L2TPV2_ENABLE=n \
@@ -66,13 +65,38 @@ ECM_MAKE_OPTS+= ECM_FRONT_END_NSS_ENABLE=y \
 		ECM_INTERFACE_SIT_ENABLE=n \
 		ECM_INTERFACE_TUNIPIP6_ENABLE=n \
 		ECM_INTERFACE_RAWIP_ENABLE=n \
-		ECM_INTERFACE_VLAN_ENABLE=n \
-		ECM_CLASSIFIER_MARK_ENABLE=n \
+		ECM_INTERFACE_VLAN_ENABLE=y \
+		ECM_INTERFACE_VXLAN_ENABLE=y \
+		ECM_CLASSIFIER_HYFI_ENABLE=n \
+		ECM_CLASSIFIER_MARK_ENABLE=y \
 		ECM_CLASSIFIER_DSCP_ENABLE=n \
 		ECM_CLASSIFIER_PCC_ENABLE=n \
 		ECM_BAND_STEERING_ENABLE=n \
 		ECM_INTERFACE_PPPOE_ENABLE=y
 endif
+
+# Variant with additional features enabled for noload profile
+define KernelPackage/qca-nss-ecm-noload
+  $(call KernelPackage/qca-nss-ecm)
+  TITLE+= (with noload features)
+  PROVIDES:=kmod-qca-nss-ecm
+  VARIANT:=noload
+  DEPENDS+=+kmod-bonding
+endef
+
+define KernelPackage/qca-nss-ecm-noload/Description
+  $(call KernelPackage/qca-nss-ecm/Description)
+  When selected, this package installs the driver, but does not load it at init.
+endef
+
+define KernelPackage/qca-nss-ecm-noload/install
+$(call KernelPackage/qca-nss-ecm/install, $(1))
+	#
+	# Remove the START line from the init script, so that the symlink
+	# in the /etc/rc.d directory is not created.
+	#
+	sed -i '/START=/d' $(1)/etc/init.d/qca-nss-ecm
+endef
 
 define Build/InstallDev
 	mkdir -p $(1)/usr/include/qca-nss-ecm
@@ -92,3 +116,4 @@ define Build/Compile
 endef
 
 $(eval $(call KernelPackage,qca-nss-ecm))
+$(eval $(call KernelPackage,qca-nss-ecm-noload))
