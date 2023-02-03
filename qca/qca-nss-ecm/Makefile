@@ -26,7 +26,9 @@ define KernelPackage/qca-nss-ecm
 	+kmod-ipt-physdev \
 	+kmod-ppp \
 	+kmod-pppoe \
-	+kmod-qca-mcs
+	+kmod-bonding \
+	+kmod-qca-mcs \
+	+kmod-nat46
   TITLE:=QCA NSS Enhanced Connection Manager (ECM)
   FILES:=$(PKG_BUILD_DIR)/ecm.ko
   KCONFIG:=CONFIG_BRIDGE_NETFILTER=y \
@@ -49,14 +51,16 @@ define KernelPackage/qca-nss-ecm/install
 	echo 'net.netfilter.nf_conntrack_max=8192' >> $(1)/etc/sysctl.d/qca-nss-ecm.conf
 endef
 
-EXTRA_CFLAGS+=-I$(STAGING_DIR)/usr/include/qca-nss-drv
+EXTRA_CFLAGS+= \
+		 -I$(STAGING_DIR)/usr/include/qca-nss-drv \
+		 -I$(STAGING_DIR)/usr/include/qca-mcs \
+		 -I$(STAGING_DIR)/usr/include/nat46
 
 ifneq (, $(findstring $(CONFIG_TARGET_BOARD), "ipq807x" "ipq60xx"))
 ECM_MAKE_OPTS:=ECM_IPV6_ENABLE=y
 ECM_MAKE_OPTS+=ECM_FRONT_END_NSS_ENABLE=y \
 		ECM_FRONT_END_SFE_ENABLE=n \
 		ECM_NON_PORTED_SUPPORT_ENABLE=y \
-		ECM_MULTICAST_ENABLE=n \
 		ECM_INTERFACE_BOND_ENABLE=n \
 		ECM_INTERFACE_IPSEC_ENABLE=n \
 		ECM_INTERFACE_PPTP_ENABLE=n \
@@ -80,7 +84,6 @@ define KernelPackage/qca-nss-ecm-noload
   TITLE+= (with noload features)
   PROVIDES:=kmod-qca-nss-ecm
   VARIANT:=noload
-  DEPENDS+=+kmod-bonding
 endef
 
 define KernelPackage/qca-nss-ecm-noload/Description
@@ -89,7 +92,7 @@ define KernelPackage/qca-nss-ecm-noload/Description
 endef
 
 define KernelPackage/qca-nss-ecm-noload/install
-$(call KernelPackage/qca-nss-ecm/install, $(1))
+	$(call KernelPackage/qca-nss-ecm/install, $(1))
 	#
 	# Remove the START line from the init script, so that the symlink
 	# in the /etc/rc.d directory is not created.
@@ -99,6 +102,10 @@ endef
 
 ifneq ($(CONFIG_PACKAGE_kmod-qca-mcs),)
 ECM_MAKE_OPTS+=ECM_MULTICAST_ENABLE=y
+endif
+
+ifneq ($(CONFIG_PACKAGE_kmod-nat46),)
+ECM_MAKE_OPTS+=ECM_INTERFACE_MAP_T_ENABLE=y
 endif
 
 define Build/InstallDev
