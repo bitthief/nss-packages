@@ -25,7 +25,8 @@ define KernelPackage/qca-nss-ecm
 	+kmod-ipt-conntrack \
 	+kmod-ipt-physdev \
 	+kmod-ppp \
-	+kmod-pppoe
+	+kmod-pppoe \
+	+kmod-qca-mcs
   TITLE:=QCA NSS Enhanced Connection Manager (ECM)
   FILES:=$(PKG_BUILD_DIR)/ecm.ko
   KCONFIG:=CONFIG_BRIDGE_NETFILTER=y \
@@ -97,6 +98,10 @@ $(call KernelPackage/qca-nss-ecm/install, $(1))
 	#
 	sed -i '/START=/d' $(1)/etc/init.d/qca-nss-ecm
 endef
+
+ifneq ($(CONFIG_PACKAGE_kmod-qca-mcs),)
+ECM_MAKE_OPTS+=ECM_MULTICAST_ENABLE=y
+endif
 
 define Build/InstallDev
 	mkdir -p $(1)/usr/include/qca-nss-ecm

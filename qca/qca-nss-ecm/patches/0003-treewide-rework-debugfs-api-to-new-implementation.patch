@@ -554,7 +554,23 @@ diff --git a/frontends/nss/ecm_nss_multicast_ipv4.c b/frontends/nss/ecm_nss_mult
 index a3dcb79..c9e92de 100644
 --- a/frontends/nss/ecm_nss_multicast_ipv4.c
 +++ b/frontends/nss/ecm_nss_multicast_ipv4.c
-@@ -2762,11 +2762,8 @@ void ecm_nss_multicast_ipv4_stop(int num)
+@@ -2623,14 +2623,8 @@ find_next_tuple:
+  */
+ bool ecm_nss_multicast_ipv4_debugfs_init(struct dentry *dentry)
+ {
+-	struct dentry *multicast_dentry;
+-
+-	multicast_dentry = debugfs_create_u32("multicast_accelerated_count", S_IRUGO, dentry,
++	debugfs_create_u32("multicast_accelerated_count", S_IRUGO, dentry,
+ 						&ecm_nss_multicast_ipv4_accelerated_count);
+-	if (!multicast_dentry) {
+-		DEBUG_ERROR("Failed to create ecm nss ipv4 multicast_accelerated_count file in debugfs\n");
+-		return false;
+-	}
+
+ 	return true;
+ }
+@@ -2649,11 +2643,8 @@ void ecm_nss_multicast_ipv4_stop(int num
   */
  int ecm_nss_multicast_ipv4_init(struct dentry *dentry)
  {
@@ -568,11 +584,25 @@ index a3dcb79..c9e92de 100644
 
  	/*
  	 * Register multicast update callback to MCS snooper
-diff --git a/frontends/nss/ecm_nss_multicast_ipv6.c b/frontends/nss/ecm_nss_multicast_ipv6.c
-index 7c027f3..2492799 100644
 --- a/frontends/nss/ecm_nss_multicast_ipv6.c
 +++ b/frontends/nss/ecm_nss_multicast_ipv6.c
-@@ -2698,11 +2698,8 @@ void ecm_nss_multicast_ipv6_stop(int num)
+@@ -2558,14 +2558,8 @@ static void ecm_nss_multicast_ipv6_mfc_u
+  */
+ bool ecm_nss_multicast_ipv6_debugfs_init(struct dentry *dentry)
+ {
+-	struct dentry *multicast_dentry;
+-
+-	multicast_dentry = debugfs_create_u32("multicast_accelerated_count", S_IRUGO, dentry,
++	debugfs_create_u32("multicast_accelerated_count", S_IRUGO, dentry,
+ 						&ecm_nss_multicast_ipv6_accelerated_count);
+-	if (!multicast_dentry) {
+-		DEBUG_ERROR("Failed to create ecm nss ipv6 multicast_accelerated_count file in debugfs\n");
+-		return false;
+-	}
+
+ 	return true;
+ }
+@@ -2584,11 +2578,8 @@ void ecm_nss_multicast_ipv6_stop(int num
   */
  int ecm_nss_multicast_ipv6_init(struct dentry *dentry)
  {
